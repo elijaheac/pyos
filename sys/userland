@@ -45,8 +45,11 @@ def create_process(name, dict):
     module.__builtins__["set_path"] = module.__dict__["set_path"] = relative(set_path)
     module.__builtins__["ls"] = module.__dict__["ls"] = relative(ls)
     del module.fork
-
-    obj = compile(code, name, "exec")
+    
+    if code[0] == "\0":
+        obj = fetch_code(code[1:])
+    else:
+        obj = compile(code, name, "exec")
     exec obj in module.__dict__
 
     return module
