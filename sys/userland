@@ -7,6 +7,13 @@ class ProcessError(Exception): pass
 
 DEBUG = False
 
+try:
+    __cpu__
+except:
+    SMP_ENABLED = False
+else:
+    SMP_ENABLED = True
+
 @clean_function
 def create_process(name, dict):
     if name.startswith("/"):
@@ -44,8 +51,12 @@ def create_process(name, dict):
     module.__builtins__["get_path"] = module.__dict__["get_path"] = relative(get_path)
     module.__builtins__["set_path"] = module.__dict__["set_path"] = relative(set_path)
     module.__builtins__["ls"] = module.__dict__["ls"] = relative(ls)
-    del module.fork
     
+    try:
+        del module.fork
+    except:
+        pass
+
     if code[0] == "\0":
         obj = fetch_code(code[1:])
     else:
@@ -58,7 +69,7 @@ def create_activity(name, dict):
     dict["child"] = name
     return create_process("activity", dict)
 
-processes = []
+processes = [None for i in xrange(10)]
 
 @clean_function
 def spawn(name, dict = None, args = [], kwargs = {}, process = None):
@@ -104,11 +115,20 @@ def fork(process, code):
     pid = spawn(None, process = module)
     process.main.send(pid)
 
-def alive():
+def _alive():
     for process in processes:
         if process is not None:
             return True
     return False
+
+if SMP_ENABLED:
+    def alive():
+        for cpu in __cpu__:
+            if cpu.alive is False:
+                return False
+        return _alive()
+else:
+    alive = _alive
 
 def process_exists(name):
     for process in processes:
@@ -138,8 +158,16 @@ waiting = {}
 sending = {}
 recieving = {}
 @clean_function
-def run_all():
+def run_all(cpu = 0):
+    if SMP_ENABLED:
+        numcpu = len(__cpu__)
+    else:
+        numcpu = 1
+
     for i, process in enumerate(processes, 0):
+        if i % numcpu != cpu:
+            continue
+
         if i in sleeping and process is not None:
             if get_path("/dev/clock") >= sleeping[i]:
                 del sleeping[i]
@@ -196,7 +224,11 @@ def fallback():
 def bootstrap():
     global DEBUG
     printf("Bootstrapping...")
-    
+   
+    if SMP_ENABLED:
+        for cpu in __cpu__:
+            cpu.scope = __dict__
+
     shellfile = open("/etc/shell").read()
     shell = shellfile.split("\n")[0]
 
@@ -209,6 +241,24 @@ def bootstrap():
     spawn(shell, __dict__)
 
     interrupt = None
+
+    if SMP_ENABLED:
+        for i, cpu in enumerate(__cpu__, 0):
+            cpu.scope = __dict__
+            
+            cpu.code = """while alive():
+    try:
+        run_all(""" + str(i) + """)
+    except SystemInterrupt:
+        break
+    except KeyboardInterrupt:
+        pass
+    except:
+        exc = file("/dev/error").read()
+        printf("userland (" + __name__ + "):", exc[0].__name__ + ":", exc[1], file="stderr")
+        if DEBUG:
+            raise"""
+
 
     while alive():
             try:
