@@ -1,0 +1,9 @@
+#!/usr/bin/env python2
+
+def _main():
+    for i, cpu in enumerate(__cpu__, 0):
+        if cpu.alive:
+            printf("CPU", i, "active")
+        else:
+            printf("CPU", i, "idle")
+    yield
