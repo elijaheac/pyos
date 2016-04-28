@@ -9,6 +9,18 @@ __modules__ = {}
 
 Directory = dict
 
+# Recovery mode detection
+RECOVERY = False
+
+__files__["sleep"] = 1
+
+if __files__["_stdin"]:
+    if __files__["stdin"] == "\x1b":
+        while __files__["stdin"] != "~":
+            pass
+        RECOVERY = True
+# End recovery mode detection
+
 def _identity_import(module, name):
     return module
 
@@ -219,7 +231,10 @@ if CIOS_MAGIC[0] == "cios2":
                         else:
                             __files__["stdout"] = char
                             input += char
-                exec input[:-1]
+                #exec compile(input[:-1], "<string>", "single")
+                if input.startswith("exit"):
+                    break
+                exec compile( input[:-1], "<string>", "single" )
             except:
                 exc = __files__["error"]
                 if exc[0] in (KeyboardInterrupt, SystemInterrupt):
@@ -242,42 +257,46 @@ else:
                 lib.printf("kernel (" + __name__ + "):", exc[0].__name__ + ":", exc[1], file="stderr")
                 raise
 
-KERNEL_MODULES = get_path("/sys/modules").split()
-KERNEL_RELOAD = 0xCAFE
+if RECOVERY:
+    __files__["stdout"] = "Entering recovery mode...\n"
+    fallback()
 
-KERNEL_CODE = []
-
-def __load_kernel_modules():
-    global KERNEL_CODE
+else:
+    KERNEL_MODULES = get_path("/sys/modules").split()
+    KERNEL_RELOAD = 0xCAFE
 
     KERNEL_CODE = []
 
-    for module in KERNEL_MODULES:
-    	KERNEL_CODE.append( do_import("".join(("/sys/", module)), local = True) )
+    def __load_kernel_modules():
+        global KERNEL_CODE
 
-def local_bootstrap():
-    set_path("/proc/kernel", __dict__)
+        KERNEL_CODE = []
 
-def local_cleanup():
-    pass
+        for module in KERNEL_MODULES:
+    	    KERNEL_CODE.append( do_import("".join(("/sys/", module)), local = True) )
 
-def bootstrap():
-    __load_kernel_modules()
+    def local_bootstrap():
+        set_path("/proc/kernel", __dict__)
+
+    def local_cleanup():
+        pass
+
+    def bootstrap():
+        __load_kernel_modules()
    
-    local_bootstrap()
+        local_bootstrap()
     
-    for module in KERNEL_CODE:
-    	if "bootstrap" in module.__dict__.keys():
-	    ret = module.bootstrap()
+        for module in KERNEL_CODE:
+    	    if "bootstrap" in module.__dict__.keys():
+	        ret = module.bootstrap()
    
-    for module in KERNEL_CODE:
-        if "cleanup" in module.__dict__.keys():
-	    module.cleanup()
+        for module in KERNEL_CODE:
+            if "cleanup" in module.__dict__.keys():
+	        module.cleanup()
 
-    local_cleanup()
+        local_cleanup()
 
-    if ret == KERNEL_RELOAD:    
-    	bootstrap()
+        if ret == KERNEL_RELOAD:    
+    	    bootstrap()
 
-bootstrap()
-#fallback()
+    bootstrap()
