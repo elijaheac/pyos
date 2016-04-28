@@ -12,13 +12,14 @@ Directory = dict
 # Recovery mode detection
 RECOVERY = False
 
-__files__["sleep"] = 1
+if CIOS_MAGIC.__len__() == 1:
+    __files__["sleep"] = 1
 
-if __files__["_stdin"]:
-    if __files__["stdin"] == "\x1b":
-        while __files__["stdin"] != "~":
-            pass
-        RECOVERY = True
+    if __files__["_stdin"]:
+        if __files__["stdin"] == "\x1b":
+            while __files__["stdin"] != "~":
+                pass
+            RECOVERY = True
 # End recovery mode detection
 
 def _identity_import(module, name):
