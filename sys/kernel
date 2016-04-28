@@ -13,7 +13,7 @@ Directory = dict
 RECOVERY = False
 
 if CIOS_MAGIC.__len__() == 1:
-    __files__["sleep"] = 1
+    __files__["sleep"] = 0.25
 
     if __files__["_stdin"]:
         if __files__["stdin"] == "\x1b":
