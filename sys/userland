@@ -223,7 +223,7 @@ def fallback():
 
 def bootstrap():
     global DEBUG
-    printf("Bootstrapping...")
+    printf("Bootstrapping...", file = "stderr", color = terminal.WHITE)
    
     if SMP_ENABLED:
         for cpu in __cpu__:
