@@ -3,5 +3,5 @@
 def _main():
     for i, process in enumerate(processes, 0):
         if process is not None:
-            printf(i, ": ", process.__name__, sep = "")
+            printf(i, ": ", process.__name__, " - CPU ", i % len(__cpu__), sep = "")
     yield
