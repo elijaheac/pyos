@@ -67,6 +67,10 @@ def include(name):
     return do_import(name, include = True)
 
 if CIOS_MAGIC[0] == "cios2":
+    proc = {} # /proc filesystem
+    
+    __files__.magic["proc"] = (lambda: proc, lambda x: None) # Force /proc to be a magic directory
+    
     @force_clean_function
     def get_path(path, bytes = None):
         __files__["readcount"] = bytes
