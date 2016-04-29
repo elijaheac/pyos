@@ -116,6 +116,8 @@ def fork(process, code):
     process.main.send(pid)
 
 def _alive():
+    if _restart:
+        return False
     for process in processes:
         if process is not None:
             return True
@@ -242,6 +244,9 @@ def bootstrap():
 
     interrupt = None
 
+    global _restart
+    _restart = False
+
     if SMP_ENABLED:
         for i, cpu in enumerate(__cpu__, 0):
             cpu.scope = __dict__
@@ -264,6 +269,7 @@ def bootstrap():
             try:
                 run_all()
             except RestartNow:
+                _restart = True
                 raise
             except SystemInterrupt:
                 break
