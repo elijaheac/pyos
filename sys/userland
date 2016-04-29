@@ -263,6 +263,8 @@ def bootstrap():
     while alive():
             try:
                 run_all()
+            except RestartNow:
+                raise
             except SystemInterrupt:
                 break
             except KeyboardInterrupt:
