@@ -220,7 +220,7 @@ def run_all(cpu = 0):
 		        recieving[i] = ret[2]
             ret = None
     
-    __files__["stdin"] = 0.1
+    __files__["sleep"] = 0.1
 
 def fallback():
     pass
