@@ -1,5 +1,7 @@
 #!/usr/bin/env python2
 
+"""Newer interface to socketfs sockets"""
+
 class socket(object):
     def __init__(self, name):
         self.name = name
