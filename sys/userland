@@ -36,7 +36,20 @@ def create_process(name, dict):
     
     module.__dict__.update(dict)
     module.__name__ = name
-    
+   
+    module.__modules__ = {}
+
+    def import_wrapper(args, kwargs):
+        kwargs["reuse"] = module.__modules__
+        kwargs["local"] = False
+        kwargs["dict"] = module.__dict__
+        return args, kwargs
+
+    wrapimport = mythos.inputoverride(import_wrapper)
+ 
+    module.__builtins__["do_import"] = local_import = wrapimport(do_import)
+    module.__builtins__["__import__"] = lambda name, *args, **kwargs: local_import(name) 
+
     module.prototype = mythos.PrototypeContainer(())
     module.CUR_DIR = "/"
     module.CUR_USER = "root"
@@ -51,6 +64,9 @@ def create_process(name, dict):
     module.__builtins__["get_path"] = module.__dict__["get_path"] = relative(get_path)
     module.__builtins__["set_path"] = module.__dict__["set_path"] = relative(set_path)
     module.__builtins__["ls"] = module.__dict__["ls"] = relative(ls)
+
+    local_import("stdio", include = True)
+    local_import("libpy", include = True)
     
     try:
         del module.fork
