@@ -54,6 +54,9 @@ def create_process(name, dict):
     module.CUR_DIR = "/"
     module.CUR_USER = "root"
 
+    local_import("stdio", include = True)
+    local_import("libpy", include = True)
+
     def relative_override(args, kwargs):
         args = list(args)
         args[0] = path.join(module.__dict__["CUR_DIR"], args[0])
@@ -64,9 +67,6 @@ def create_process(name, dict):
     module.__builtins__["get_path"] = module.__dict__["get_path"] = relative(get_path)
     module.__builtins__["set_path"] = module.__dict__["set_path"] = relative(set_path)
     module.__builtins__["ls"] = module.__dict__["ls"] = relative(ls)
-
-    local_import("stdio", include = True)
-    local_import("libpy", include = True)
     
     try:
         del module.fork
