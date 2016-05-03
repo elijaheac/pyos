@@ -52,10 +52,7 @@ def create_process(name, dict):
 
     module.prototype = mythos.PrototypeContainer(())
     module.CUR_DIR = "/"
-    module.CUR_USER = "root"
-
-    local_import("stdio", include = True)
-    local_import("libpy", include = True)
+    module.CUR_USER = "root" 
 
     def relative_override(args, kwargs):
         args = list(args)
@@ -68,6 +65,9 @@ def create_process(name, dict):
     module.__builtins__["set_path"] = module.__dict__["set_path"] = relative(set_path)
     module.__builtins__["ls"] = module.__dict__["ls"] = relative(ls)
     
+    local_import("stdio", include = True)
+    local_import("libpy", include = True)
+
     try:
         del module.fork
     except:
