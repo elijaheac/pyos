@@ -1,0 +1,21 @@
+#!/usr/bin/env python2
+
+class socket(object):
+    def __init__(self, name):
+        self.name = name
+
+    def write(self, value):
+        write(self.name, value)
+    send = write
+
+    def read(self):
+        return read(self.name)
+    recv = read
+
+def write(address, value):
+    set_path("/proc/socket/" + address, value)
+send = write
+
+def read(address):
+    return get_path("/proc/socket/" + address)
+recv = read
