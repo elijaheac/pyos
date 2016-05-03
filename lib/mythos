@@ -46,8 +46,9 @@ class PrototypeContainer(object):
 
 def inputoverride(override):
     def decorator(func):
-        def wrapped(*args, **kwargs):
-            return func(*override(args), **kwargs)
+        def mythos_function(*args, **kwargs):
+            args, kwargs = override(args, kwargs)
+            return func(*args, **kwargs)
         functools.update_wrapper(wrapped, func)
         return wrapped
     return decorator
