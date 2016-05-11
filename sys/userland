@@ -65,8 +65,8 @@ def create_process(name, dict):
     module.__builtins__["set_path"] = module.__dict__["set_path"] = relative(set_path)
     module.__builtins__["ls"] = module.__dict__["ls"] = relative(ls)
     
-    local_import("stdio", include = True)
-    local_import("libpy", include = True)
+    #local_import("stdio", include = True)
+    #local_import("libpy", include = True)
 
     try:
         del module.fork
