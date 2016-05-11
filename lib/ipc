@@ -3,19 +3,25 @@
 """Newer interface to socketfs sockets"""
 
 class socket(object):
-    def __init__(self, name):
+    def __init__(self, name, pid = None):
         self.name = name
+        self.pid = pid
 
     def write(self, value):
-        write(self.name, value)
+        write(self.name, value, self.pid)
     send = write
 
     def read(self):
         return read(self.name)
     recv = read
 
-def write(address, value):
-    set_path("/proc/socket/" + address, value)
+class legacy(socket):
+    def read(self):
+        return read(self.name)[1]
+    recv = read
+
+def write(address, value, pid):
+    set_path("/proc/socket/" + address, (pid, value))
 send = write
 
 def read(address):

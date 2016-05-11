@@ -1,5 +1,7 @@
 #!/usr/bin/env python2
 
+import ipc
+
 def switch_init(initlevel):
 	if initlevel != "socket" and\
 	    initlevel in get_path("/etc/initmgr").keys():
@@ -23,17 +25,19 @@ def switch_init(initlevel):
 			printf("[FAIL]", initlevel)
 
 def _main():
+        socket = ipc.legacy("initmgr")
+
 	if "loud" in CIOS_MAGIC:
 		printf("[START] initmgr")
 	yield
 
-	set_path("/proc/socket/initmgr", "boot")
+	socket.write("boot")
 
 	while True:
 		yield
 
 		try:
-			initlevel = get_path("/proc/socket/initmgr")
+			initlevel = socket.read()
 		except:
 			continue
 		switch_init( initlevel )
