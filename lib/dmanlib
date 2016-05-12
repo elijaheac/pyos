@@ -2,26 +2,32 @@
 
 """Basic functions and classes supporting dman and allowing programs to render output into dman buffers."""
 
-import socket
+import multiprocessing as mp
+import ipc
 
 class VirtualTerminal(object):
-	count = 0
-	def __init__(self, name = None):
-		if name is None:
-			self.name = "".join(("tty", str(self.count)))
-		else:
-			self.name = name
+    def	__init__(self, pid):
+        self.pid = pid
+        self.path = "/proc/dman/" + str(pid)
+        self.dman = ipc.socket("dman", pid)
 
-		self.stdin = "/".join(("/proc/stdin", self.name))
-		self.stdout = "/".join(("/proc/stdout", self.name))
-		self.stderr = "/".join(("/proc/stderr", self.name))
+    def printf(self, *args, **kwargs):
+        if kwargs.get("file", "stdout") == "stderr":
+            req = [2]
+        else:
+            req = [1]
 
+        req.extend(args)
+        req.append(kwargs)
 
-		set_path(self.stdin, "")
-		set_path(self.stdout, "")
-		set_path(self.stderr, "")	
+        self.dman.write( tuple(req) )
 
-	def attach(self):
-		terminal.clear()
-		out = "\n".join( get_path("/proc/stdin").peekall(self.name) )
-		printf(out)
+        mp.force( mp.get_pid("dman") )
+
+    def input(self, prompt = "", echo = True, char = 1000000000, raw = False, endchar = '\n\x18\x04', history = ()):
+        req = (0, prompt, echo, char, raw, endchar, history, self.path)
+        self.dman.write( tuple(req) )
+
+        mp.force( mp.get_pid("dman") )
+
+        return get_path(self.path)
