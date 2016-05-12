@@ -190,11 +190,12 @@ def run_all(cpu = 0, force = None):
         numcpu = 1
 
     for i, process in enumerate(processes, 0):
-        if i % numcpu != cpu and force is None:
-            continue
-
-        if force is not None and i != force:
-            continue
+        if force is None:
+            if i % numcpu != cpu:
+                continue
+        else:
+            if force is not None and i != force:
+               continue
 
         if i in sleeping and process is not None:
             if get_path("/dev/clock") >= sleeping[i]:
@@ -230,6 +231,9 @@ def run_all(cpu = 0, force = None):
             except ProcessInterrupt:
                 processes[i] = None
                 del process
+            except ValueError, e:
+                if str(e) != "generator already executing": # sloppy code but I don't know
+                    raise                                   # why this errror pops up
             if type(ret) is tuple and len(ret) == 3:
                 if ret[0] == SYSCALL:
                     if ret[1] == SLEEP: # sleep for <input> number of seconds
