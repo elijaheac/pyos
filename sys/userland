@@ -176,14 +176,17 @@ waiting = {}
 sending = {}
 recieving = {}
 @clean_function
-def run_all(cpu = 0):
+def run_all(cpu = 0, force = None):
     if SMP_ENABLED:
         numcpu = len(__cpu__)
     else:
         numcpu = 1
 
     for i, process in enumerate(processes, 0):
-        if i % numcpu != cpu:
+        if i % numcpu != cpu and force is None:
+            continue
+
+        if force is not None and i != force:
             continue
 
         if i in sleeping and process is not None:
