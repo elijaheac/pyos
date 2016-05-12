@@ -6,6 +6,7 @@ class socket(object):
     def __init__(self, name, pid = None):
         self.name = name
         self.pid = pid
+        self.path = "/proc/socket" + name
 
         if name not in ls("/proc/socket"):
             self.write("you should not be reading this")
@@ -18,10 +19,6 @@ class socket(object):
     def read(self, default = ""):
         return read(self.name, default)
     recv = read
-
-    @property
-    def path(self):
-        return "/proc/socket/" + self.name
 
 class legacy(socket):
     def read(self):
