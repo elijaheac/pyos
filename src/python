@@ -24,6 +24,8 @@ def _main(prompt = ">>> "):
             break
         except:
             exc = file("/dev/error").read()
+            if exc[0].__name__ == "ProcessInterrupt":
+                break
             printf("python (" + __name__ + "):", exc[0].__name__ + ":", exc[1], file="stderr")
             #raise
         yield

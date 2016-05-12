@@ -213,10 +213,12 @@ def _main(prompt = None):
             if pid != -1:
                 yield SYSCALL, WAIT, pid
         except ProcessInterrupt:
-            break
+            raise
         except SystemInterrupt:
             raise
         except:
             exc = file("/dev/error").read()
+            if exc[0].__name__ == "ProcessInterrupt":
+                break
             printf("sh (sh):", exc[0].__name__ + ":", exc[1], file="stderr")
         yield
