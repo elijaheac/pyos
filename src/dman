@@ -8,14 +8,15 @@ import sys
 
 bindings = {}
 
-def get_input(request):
+def get_input(request, extra):
     return stdio.input(*request)
 
-def write_output(request):
-    return stdio.printf(*request)
+def write_output(request, extra):
+    return stdio.printf(*request, **extra)
 
-def write_error(request):
-    return stdio.printf(*request, file = "stderr")
+def write_error(request, extra):
+    extra["file"] = "stderr"
+    return stdio.printf(*request, **extra)
 
 def process_request(source, request):
     if source in bindings:
@@ -23,7 +24,7 @@ def process_request(source, request):
     else:
         binding = (get_input, write_output, write_error)
 
-    ret = binding[ request[0] ] ( request[1:-1] )
+    ret = binding[ request[0] ] ( request[1:-1], request[-1] )
 
     if ret:
         set_path(request[-1], ret)
@@ -32,7 +33,7 @@ def _main():
     socket = ipc.socket("dman")
     yield
 
-    socket.write((1, "dman enabled"))
+    socket.write((1, "", {"end" : ""}))
 
     while True:
         src, msg = socket.read( (0, 0) )
