@@ -3,6 +3,8 @@
 import passwd
 
 def _main():
+    yield
+
     passfile = open("/etc/passwd").read()
     users = [user.split(':') for user in passfile.split("\n")]
 
