@@ -1,0 +1,15 @@
+#!/usr/bin/env python2
+
+def get_pid(name, multiple = False):
+    ret = []
+    
+    for pid, process in processes:
+        if process.__name__ == name:
+            if multiple:
+                ret.append(pid)
+            else:
+                return pid
+    return ret
+
+def force(pid):
+    run_all(0, pid)
