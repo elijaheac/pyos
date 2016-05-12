@@ -1,0 +1,43 @@
+#!/usr/bin/env python2
+
+"""dman allows programs to run in virtual terminals"""
+
+import stdio
+import ipc
+import sys
+
+bindings = {}
+
+def get_input(request):
+    return stdio.input(*request)
+
+def write_output(request):
+    return stdio.printf(*request)
+
+def write_error(request):
+    return stdio.printf(*request, file = "stderr")
+
+def process_request(source, request):
+    if source in bindings:
+        binding = bindings[source]
+    else:
+        binding = (get_input, write_output, write_error)
+
+    ret = binding[ request[0] ] ( request[1:-1] )
+
+    if ret:
+        set_path(request[-1], ret)
+
+def _main():
+    socket = ipc.socket("dman")
+    yield
+
+    socket.write((1, "dman enabled"))
+
+    while True:
+        src, msg = socket.read( (0, 0) )
+
+        if type(msg) is tuple:
+            process_request(src, msg)
+
+        yield
