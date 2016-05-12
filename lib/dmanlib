@@ -31,4 +31,6 @@ class VirtualTerminal(object):
         for i in xrange(2):
             mp.force( mp.get_pid("dman") )
         
-        return get_path(self.path)
+        ret = get_path(self.path)
+        set_path(self.path, None)
+        return ret
