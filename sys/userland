@@ -86,6 +86,7 @@ def create_activity(name, dict):
     return create_process("activity", dict)
 
 processes = [None for i in xrange(10)]
+dmanlib = include("dmanlib") # Import at weird place to force the __dict__ to be set properly
 
 @clean_function
 def spawn(name, dict = None, args = [], kwargs = {}, process = None):
@@ -98,7 +99,7 @@ def spawn(name, dict = None, args = [], kwargs = {}, process = None):
             #process = create_activity(name, dict)
             #return -1
             raise
-        
+
     if None in processes:
         index = processes.index(None)
         processes[index] = process
@@ -114,9 +115,15 @@ def spawn(name, dict = None, args = [], kwargs = {}, process = None):
         processes[index].main = processes[index]._main()
 
     if index == -1:
-        return len(processes) - 1
+        pid = len(processes) - 1
     else:
-        return index
+        pid = index
+
+    process.tty = dmanlib.VirtualTerminal(pid)
+    process.printf = process.tty.printf
+    process.input = process.tty.input
+
+    return pid
 
 def fork(process, code):
     name = process.__name__
@@ -245,6 +252,11 @@ def fallback():
     pass
 
 def bootstrap():
+    dmanlib.mp.processes = processes
+    dmanlib.mp.run_all = run_all
+    
+    set_path("/proc/dman", {})
+    
     global DEBUG
     printf("Bootstrapping...", file = "stderr", color = terminal.WHITE)
    

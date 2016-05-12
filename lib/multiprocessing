@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
 
 def get_pid(name, multiple = False):
+    if name == "dman":
+        return 2
+    
     ret = []
     
     for pid, process in enumerate(processes, 0):

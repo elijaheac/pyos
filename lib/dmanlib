@@ -28,6 +28,7 @@ class VirtualTerminal(object):
         req = (0, prompt, echo, char, raw, endchar, history, self.path)
         self.dman.write( tuple(req) )
 
-        mp.force( mp.get_pid("dman") )
-
+        for i in xrange(2):
+            mp.force( mp.get_pid("dman") )
+        
         return get_path(self.path)
