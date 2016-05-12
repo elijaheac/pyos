@@ -7,12 +7,16 @@ class socket(object):
         self.name = name
         self.pid = pid
 
+        if name not in ls("/proc/socket"):
+            self.write("you should not be reading this")
+            self.read()
+
     def write(self, value):
         write(self.name, value, self.pid)
     send = write
 
-    def read(self):
-        return read(self.name)
+    def read(self, default = ""):
+        return read(self.name, default)
     recv = read
 
 class legacy(socket):
@@ -24,6 +28,9 @@ def write(address, value, pid):
     set_path("/proc/socket/" + address, (pid, value))
 send = write
 
-def read(address):
-    return get_path("/proc/socket/" + address)
+def read(address, default = ""):
+    try:
+        return get_path("/proc/socket/" + address)
+    except:
+        return default
 recv = read
