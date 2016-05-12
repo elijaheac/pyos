@@ -49,9 +49,6 @@ class SocketFileSystem(object):
 		return len( self.data[name] )
 
 def bootstrap():
-	set_path("/proc/stdin", SocketFileSystem())
-	set_path("/proc/stdout", SocketFileSystem())
-	set_path("/proc/stderr", SocketFileSystem())
 	set_path("/proc/socket", SocketFileSystem())
 
 def cleanup():
