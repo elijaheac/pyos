@@ -19,6 +19,10 @@ class socket(object):
         return read(self.name, default)
     recv = read
 
+    @property
+    def path(self):
+        return "/proc/socket/" + self.name
+
 class legacy(socket):
     def read(self):
         return read(self.name)[1]
