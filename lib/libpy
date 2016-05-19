@@ -31,7 +31,21 @@ def next(iter):
 @clean_function
 def hasattr(obj, name):
     try:
+        return hasattr_local(obj, name) or hasattr_global(obj, name)
+    except:
+        return False
+
+@clean_function
+def hasattr_local(obj, name):
+    try:
         return (name in obj.__dict__)
+    except:
+        return False
+
+@clean_function
+def hasattr_global(obj, name):
+    try:
+        return (name in type(obj).__dict__)
     except:
         return False
 
