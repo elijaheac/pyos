@@ -19,6 +19,9 @@ def write_error(request, extra):
     return stdio.printf(*request, **extra)
 
 def process_request(source, request):
+    if request[0] == -1:
+        bindings[source] = request[1]
+
     if source in bindings:
         binding = bindings[source]
     else:
