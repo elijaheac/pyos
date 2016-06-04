@@ -4,7 +4,9 @@ def get_pid(name, multiple = False):
     ret = []
     
     for pid, process in enumerate(processes, 0):
-        if process.__name__ == name:
+        if process is None:
+            continue
+        elif process.__name__ == name:
             if multiple:
                 ret.append(pid)
             else:
